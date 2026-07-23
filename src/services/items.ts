@@ -3,15 +3,12 @@ import { Item } from "@/types/item";
 
 export async function getItems() {
   const db = await getDatabase();
-
   const docs = await db.items.find().exec();
-
   return docs.map((doc) => doc.toJSON());
 }
 
 export async function markAsSynced(id: string) {
   const db = await getDatabase();
-
   const doc = await db.items.findOne(id).exec();
 
   if (!doc) return;
