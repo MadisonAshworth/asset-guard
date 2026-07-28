@@ -11,6 +11,9 @@ export const itemSchema = {
       type: "string",
       maxLength: 100,
     },
+    userId: {
+      type: "string",
+    },
     title: {
       type: "string",
     },
@@ -33,12 +36,12 @@ export const itemSchema = {
       type: "number",
     },
   },
-  required: ["id", "title"],
+  required: ["id", "userId", "title"],
 };
 
 export async function createDatabase() {
   const db = await createRxDatabase({
-    name: "assetguarddb",
+    name: "assetguarddb_v2",
     storage: getRxStorageDexie(),
   });
 

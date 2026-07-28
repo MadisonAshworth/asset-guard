@@ -22,6 +22,7 @@ export function useSync() {
 
         const { error } = await supabase.from("items").upsert({
           id: item.id,
+          user_id: item.userId,
           title: item.title,
           content: item.content,
           type: item.type,

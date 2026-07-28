@@ -1,5 +1,6 @@
 import { getDatabase } from "@/lib/database";
 import { Item } from "@/types/item";
+import { supabase } from "@/lib/supabase";
 
 export async function getItems() {
   const db = await getDatabase();
@@ -13,9 +14,17 @@ export async function markAsSynced(id: string) {
 
   if (!doc) return;
 
-  await doc.patch({
-    synced: true,
-  });
+  console.log("SYNC DOC:", doc.toJSON());
+
+  try {
+    await doc.patch({
+      synced: true,
+    });
+
+    console.log("PATCH SUCCESS");
+  } catch (err) {
+    console.error("PATCH FAILED:", err);
+  }
 }
 
 export async function createItem(
@@ -24,9 +33,16 @@ export async function createItem(
   type: "note" | "task",
 ) {
   const db = await getDatabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  if (!user) {
+    throw new Error("User not logged in");
+  }
   await db.items.insert({
     id: crypto.randomUUID(),
+    userId: user.id,
     title,
     content,
     type,
