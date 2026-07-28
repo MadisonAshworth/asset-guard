@@ -4,13 +4,15 @@ import { useEffect, useState } from "react";
 import { createItem, getItems, deleteItem, updateItem } from "@/services/items";
 import { Item } from "@/types/item";
 import { useSync } from "@/hooks/useSync";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 export default function Home() {
   const isOnline = useSync();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [type, setType] = useState<"note" | "task">("note");
-
+  const [user, setUser] = useState<User | null>(null);
   const [items, setItems] = useState<Item[]>([]);
 
   async function loadItems() {
@@ -30,11 +32,24 @@ export default function Home() {
 
   useEffect(() => {
     const init = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setUser(user);
       await loadItems();
     };
 
     init();
   }, []);
+
+  if (!user) {
+    return (
+      <main className="p-8">
+        <p>Please log in.</p>
+      </main>
+    );
+  }
 
   return (
     <main className="p-8 max-w-4xl mx-auto">
