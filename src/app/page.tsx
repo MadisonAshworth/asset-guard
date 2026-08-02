@@ -6,6 +6,7 @@ import { Item } from "@/types/item";
 import { useSync } from "@/hooks/useSync";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import { getRole } from "@/services/profile";
 
 export default function Home() {
   const isOnline = useSync();
@@ -14,10 +15,16 @@ export default function Home() {
   const [type, setType] = useState<"note" | "task">("note");
   const [user, setUser] = useState<User | null>(null);
   const [items, setItems] = useState<Item[]>([]);
+  const [role, setRole] = useState<string | null>(null);
 
   async function loadItems() {
     const data = await getItems();
     setItems(data);
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
   }
 
   async function handleAdd() {
@@ -36,7 +43,15 @@ export default function Home() {
         data: { user },
       } = await supabase.auth.getUser();
 
+      if (!user) {
+        window.location.href = "/login";
+        return;
+      }
+
       setUser(user);
+
+      const userRole = await getRole();
+      setRole(userRole);
       await loadItems();
     };
 
@@ -46,14 +61,34 @@ export default function Home() {
   if (!user) {
     return (
       <main className="p-8">
-        <p>Please log in.</p>
+        <p>Loading...</p>
       </main>
     );
   }
 
+  const visibleItems =
+    role === "admin"
+      ? items
+      : user
+        ? items.filter((item) => item.userId === user.id)
+        : [];
+
   return (
     <main className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">AssetGuard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <p className="text-sm text-gray-600">Logged in as: {user.email}</p>
+          <p className="text-sm font-medium">Role: {role ?? "Loading..."}</p>
+        </div>
+
+        <button
+          onClick={logout}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
       <p
         className={`mb-6 font-medium ${isOnline ? "text-green-600" : "text-red-600"}`}
       >
@@ -95,7 +130,7 @@ export default function Home() {
       </div>
 
       <div className="space-y-3">
-        {items.map((item) => (
+        {visibleItems.map((item) => (
           <div key={item.id} className="border rounded p-4 shadow-sm">
             <div className="flex justify-between items-start">
               <div className="flex-1">
