@@ -55,13 +55,22 @@ export async function createItem(
 
 export async function updateItem(id: string, updates: Partial<Item>) {
   const db = await getDatabase();
+
   const doc = await db.items.findOne(id).exec();
-  if (!doc) return;
-  await doc.patch({
-    ...updates,
-    synced: false,
-    updatedAt: Date.now(),
-  });
+  if (!doc) {
+    return;
+  }
+  try {
+    await doc.patch({
+      ...updates,
+      synced: false,
+      updatedAt: Date.now(),
+    });
+    const updatedDoc = await db.items.findOne(id).exec();
+    console.log("UPDATED DOC:", updatedDoc?.toJSON());
+  } catch (err) {
+    console.error("PATCH FAILED:", err);
+  }
 }
 
 export async function deleteItem(id: string) {
