@@ -156,20 +156,6 @@ export default function Home() {
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  {item.type === "task" && (
-                    <input
-                      type="checkbox"
-                      checked={item.completed}
-                      onChange={async (e) => {
-                        await updateItem(item.id, {
-                          completed: e.target.checked,
-                        });
-
-                        await loadItems();
-                      }}
-                    />
-                  )}
-
                   <span
                     className={
                       item.type === "note" ? "item-type-note" : "item-type-task"
@@ -186,6 +172,7 @@ export default function Home() {
                     {item.title}
                   </h3>
                 </div>
+                <h3 className="font-bold"></h3>
 
                 <p className="item-content">{item.content}</p>
 
