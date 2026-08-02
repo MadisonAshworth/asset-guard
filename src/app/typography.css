@@ -1,0 +1,102 @@
+/* HEADINGS */
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* BODY TEXT */
+
+.body-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.body-muted {
+  font-size: 0.95rem;
+  color: var(--foreground);
+  opacity: 0.75;
+}
+
+/* USER INFO */
+
+.user-email {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.role-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* STATUS */
+
+.status-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ITEMS */
+
+.item-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.item-content {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--foreground);
+  opacity: 0.85;
+}
+
+.item-status {
+  font-size: 0.8rem;
+  color: var(--foreground);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+}
+
+/* FORM */
+
+.input-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.button-text {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* LOGIN */
+
+.login-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.login-subtitle {
+  font-size: 1rem;
+  color: var(--foreground);
+  opacity: 0.75;
+}
+
+.input-text {
+  font-size: 1rem;
+  font-weight: 400;
+}
