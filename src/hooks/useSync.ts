@@ -14,32 +14,24 @@ export function useSync() {
   async function pullFromCloud() {
     try {
       const db = await getDatabase();
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) return;
-
       const role = await getRole();
-
       const query =
         role === "admin"
           ? supabase.from("items").select("*")
           : supabase.from("items").select("*").eq("user_id", user.id);
-
       const { data, error } = await query;
-
       if (error) {
         console.error("PULL ERROR:", error);
         return;
       }
-
       if (!data) return;
-
       for (const item of data) {
         const existing = await db.items.findOne(item.id).exec();
-
         if (!existing) {
           await db.items.insert({
             id: item.id,
@@ -53,6 +45,11 @@ export function useSync() {
             updatedAt: new Date(item.updated_at).getTime(),
           });
         } else {
+          const local = existing.toJSON();
+
+          if (!local.synced) {
+            continue;
+          }
           await existing.patch({
             title: item.title,
             content: item.content ?? "",
@@ -64,7 +61,6 @@ export function useSync() {
           });
         }
       }
-
       console.log("Pull complete");
     } catch (err) {
       console.error("Pull failed:", err);
@@ -75,7 +71,6 @@ export function useSync() {
     try {
       console.log("pushToCloud started");
       const items = await getItems();
-      console.table(items);
       const unsynced = items.filter((item) => !item.synced);
       console.log("UNSYNCED:", unsynced);
 
