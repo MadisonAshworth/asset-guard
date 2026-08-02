@@ -99,6 +99,7 @@ export function useSync() {
           console.log("Upload successful:", item.id);
 
           await markAsSynced(item.id);
+          window.dispatchEvent(new Event("items-updated"));
         }
       }
     } catch (err) {

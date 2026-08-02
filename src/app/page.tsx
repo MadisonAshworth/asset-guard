@@ -10,6 +10,7 @@ import { getRole } from "@/services/profile";
 
 export default function Home() {
   const isOnline = useSync();
+  const [darkMode, setDarkMode] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [type, setType] = useState<"note" | "task">("note");
@@ -36,6 +37,9 @@ export default function Home() {
     await loadItems();
     window.dispatchEvent(new Event("online"));
   }
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     const init = async () => {
@@ -57,6 +61,17 @@ export default function Home() {
 
     init();
   }, []);
+  useEffect(() => {
+    const handleItemsUpdated = async () => {
+      await loadItems();
+    };
+
+    window.addEventListener("items-updated", handleItemsUpdated);
+
+    return () => {
+      window.removeEventListener("items-updated", handleItemsUpdated);
+    };
+  }, []);
 
   if (!user) {
     return (
@@ -77,22 +92,31 @@ export default function Home() {
     <main className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">AssetGuard</h1>
       <div className="flex justify-between items-center mb-6">
-        <div>
-          <p className="text-sm text-gray-600">Logged in as: {user.email}</p>
-          <p className="text-sm font-medium">Role: {role ?? "Loading..."}</p>
-        </div>
+        <div className="user-panel">
+          <div className="user-info">
+            <p>Logged in as: {user.email}</p>
+            <p>
+              <span className={role === "admin" ? "role-admin" : "role-user"}>
+                {role}
+              </span>
+            </p>
+          </div>
 
-        <button
-          onClick={logout}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Logout
-        </button>
+          <div className="user-actions">
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="btn-primary"
+            >
+              {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+            </button>
+
+            <button onClick={logout} className="btn-danger">
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
-      <p
-        className={`mb-6 font-medium ${isOnline ? "text-green-600" : "text-red-600"}`}
-      >
-        {" "}
+      <p className={isOnline ? "status-online" : "status-offline"}>
         {isOnline ? "🟢 Online" : "🔴 Offline"}
       </p>
 
@@ -101,37 +125,34 @@ export default function Home() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Title"
-          className="border p-2 rounded"
+          className="form-control"
         />
 
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Content"
-          className="border p-2 rounded"
+          className="form-control"
           rows={4}
         />
 
         <select
           value={type}
           onChange={(e) => setType(e.target.value as "note" | "task")}
-          className="border p-2 rounded"
+          className="form-control"
         >
           <option value="note">Note</option>
           <option value="task">Task</option>
         </select>
 
-        <button
-          onClick={handleAdd}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
+        <button onClick={handleAdd} className="btn-primary hover:bg-blue-600">
           Add Item
         </button>
       </div>
 
       <div className="space-y-3">
         {visibleItems.map((item) => (
-          <div key={item.id} className="border rounded p-4 shadow-sm">
+          <div key={item.id} className="card">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -149,22 +170,26 @@ export default function Home() {
                     />
                   )}
 
-                  <span className="text-xs bg-gray-200 px-2 py-1 rounded">
+                  <span
+                    className={
+                      item.type === "note" ? "item-type-note" : "item-type-task"
+                    }
+                  >
                     {item.type}
                   </span>
 
                   <h3
                     className={`font-bold ${
-                      item.completed ? "line-through text-gray-400" : ""
+                      item.completed ? "line-through opacity-50" : ""
                     }`}
                   >
                     {item.title}
                   </h3>
                 </div>
 
-                <p className="text-gray-600">{item.content}</p>
-                <p className="text-xs text-gray-500 mt-2">
-                  {" "}
+                <p className="item-content">{item.content}</p>
+
+                <p className="item-status">
                   {item.synced ? "☁️ Synced" : "⏳ Local Only"}
                 </p>
               </div>
