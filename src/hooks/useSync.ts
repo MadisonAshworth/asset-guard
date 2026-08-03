@@ -47,9 +47,16 @@ export function useSync() {
         } else {
           const local = existing.toJSON();
 
+          const cloudUpdatedAt = new Date(item.updated_at).getTime();
+
           if (!local.synced) {
             continue;
           }
+
+          if (local.updatedAt > cloudUpdatedAt) {
+            continue;
+          }
+
           await existing.patch({
             title: item.title,
             content: item.content ?? "",
@@ -57,7 +64,7 @@ export function useSync() {
             completed: item.completed ?? false,
             deleted: item.deleted ?? false,
             synced: true,
-            updatedAt: new Date(item.updated_at).getTime(),
+            updatedAt: cloudUpdatedAt,
           });
         }
       }
